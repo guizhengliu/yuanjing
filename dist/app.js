@@ -146,3 +146,5 @@ $('omens-summary').onclick=()=>{
   $('omens-list').append(section);
  });$('omens-dialog').showModal();
 };$('omens-close').onclick=()=>$('omens-dialog').close();
+
+$('back-to-top').onclick=()=>{clearElementFocus();window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})};
