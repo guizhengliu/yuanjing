@@ -26,4 +26,6 @@ assert.equal(context.findPlanetAt(290,380),null);
 assert.equal(context.findPlanetAt(215,500),null,'Client Y must account for page scroll');
 assert.equal(context.planetHits[0].name,'太阳','Hit testing must not reorder frame data');
 context.scrollY=0;assert.equal(context.findPlanetAt(200,500).name,'太阳');
+vm.runInContext(await readFile(new URL('symbol-icons.js',dist),'utf8'),context);
+for(const name of [...context.YuanjingIcons.gods,...context.YuanjingIcons.omens])assert.ok(context.YuanjingIcons.motifs[name]?.includes(' · '),'Missing shape meaning: '+name);
 console.log('Hover data checks passed: 51 explanations, 9 celestial bodies, nearest-hit selection, labels and scroll coordinates.');

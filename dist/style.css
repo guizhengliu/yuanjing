@@ -195,3 +195,17 @@
 #play:hover,#play[aria-pressed="true"]{background:#26352c;border-color:#cbb482}
 #play svg{flex:none;pointer-events:none}
 @media(max-width:400px){.orbit-heading{gap:7px}.orbitlabel span{letter-spacing:3px}#play,#back-to-top{padding:6px 7px}}
+
+/* Explanations stay beside the inspected element, on desktop and touch screens. */
+#element-popover{position:fixed;z-index:1000;width:min(280px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;background:#10201ef5;border:1px solid #b9c99b66;border-radius:8px;box-shadow:0 10px 40px #0009;padding:16px;pointer-events:none;touch-action:pan-y}
+#element-popover[hidden]{display:none}
+#element-popover[data-interaction="tap"]{pointer-events:auto}
+#element-popover .detail{margin:0;padding:0;border:0;background:none}
+#element-popover .detailicon{margin-top:10px}
+#element-popover .detail h3{font-size:20px;margin:9px 0}
+#element-popover .detail p{min-height:0;font-size:12px;line-height:1.8;margin:9px 0}
+#element-popover .detail>div:last-of-type{border-top:1px solid #a7bfac25;padding-top:10px;font-size:10px;color:#8fa48f;line-height:1.7}
+#element-popover .detail .motif-note{color:#cfbc91;font-size:11px}
+.popover-close{float:right;width:32px;height:32px;position:relative;z-index:1;border:1px solid #b9c99b44;border-radius:4px;font-size:23px;line-height:1;color:#d9dfd6}
+.popover-close[hidden]{display:none}
+.popover-notice{display:block;font-size:9px;line-height:1.7;color:#8b9b8f;margin-top:12px}

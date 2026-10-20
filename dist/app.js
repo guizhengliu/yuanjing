@@ -1,4 +1,4 @@
-const $=id=>document.getElementById(id),gods=['比肩','劫财','食神','伤官','偏财','正财','七杀','正官','偏印','正印'],texts=['同气相应，象征自我与同伴。以双生晶石显化独立与协作。','并肩争流，象征行动与竞争。以双刃映照勇气与边界。','表达与创造之象。花朵舒展，寓意从内在流向外界的才思。','突破与革新之象。流星划破旧有轨迹，象征独特表达。','流动与机遇之象。游走的晶石映照资源与变化。','积累与经营之象。六角灵晶寓意秩序与持久投入。','决断与挑战之象。锋芒星轮映照面对压力时的行动力。','规则与责任之象。灵塔守护边界与承诺。','洞察与领悟之象。月轮映照独特的学习与思考方式。','滋养与庇护之象。以一枚灵玉，承载学习、记忆与内在的安定。'];let eight,active=[],omens=[],stemEntries=[],hiddenEntries=[],omenEntries=[],selectedKey=null,mode='all',birthMs,simDays=0,playing=false,rotation=0,zoom=1,selected='正印';let focusTarget=null,focusOrigin=null,lastInput='pointer';
+const $=id=>document.getElementById(id),gods=['比肩','劫财','食神','伤官','偏财','正财','七杀','正官','偏印','正印'],texts=['同气相应，象征自我与同伴。以双生晶石显化独立与协作。','并肩争流，象征行动与竞争。以双刃映照勇气与边界。','表达与创造之象。花朵舒展，寓意从内在流向外界的才思。','突破与革新之象。流星划破旧有轨迹，象征独特表达。','流动与机遇之象。流转的灵晶映照资源与变化。','积累与经营之象。六角灵晶寓意秩序与持久投入。','决断与挑战之象。锋刃与盾映照面对压力时的行动力。','规则与责任之象。灵塔守护边界与承诺。','洞察与领悟之象。月轮映照独特的学习与思考方式。','滋养与庇护之象。以双手护持的灵玉，承载学习、支持与内在的安定。'];let eight,active=[],omens=[],stemEntries=[],hiddenEntries=[],omenEntries=[],selectedKey=null,mode='all',birthMs,simDays=0,playing=false,rotation=0,zoom=1,selected='正印';let focusTarget=null,focusOrigin=null,lastInput='pointer';
 function selectSymbol(name,entry,preview=false){selected=name;selectedKey=entry?.id||null;const idx=gods.indexOf(name);$('detailname').textContent=name;$('detailicon').style.color='';$('detailicon').innerHTML=idx<0?getOmenIcon(name):YuanjingIcons.svg(name,'god');$('detailicon').dataset.family=idx<0?'omen':'god';$('detailtype').textContent=idx<0?'神煞 · 灵境':'十神 · 星符';$('detailtext').textContent=idx<0?(globalThis.YuanjingElementInfo?.omens[name]||'传统文化的艺术符号。'):texts[idx];$('detailmeta').textContent=idx<0?'命盘中出现 '+omens.filter(n=>n===name).length+' 次 · 常用规则集':active.includes(name)?'命盘中出现 '+active.filter(n=>n===name).length+' 次 · 天干或地支藏干关系':'此命盘未出现 · 十神符号图鉴';if(entry)$('detailmeta').textContent=entry.origin+' · '+(entry.kind==='stem'?'第一圈 · 透干':entry.kind==='hidden'?'第二圈 · 藏干':'第三圈 · 神煞');if(preview){document.querySelectorAll('.symbol').forEach(b=>b.classList.toggle('selected',b.dataset.symbolId===selectedKey))}else renderSymbols()}
 function syncVisualFocus(){
  const host=document.querySelector('.world');host.classList.toggle('is-focusing',Boolean(focusTarget));
@@ -8,23 +8,47 @@ function syncVisualFocus(){
 function focusElement(kind,key,origin='pointer'){
  if(focusTarget?.kind===kind&&focusTarget.key===key&&focusOrigin===origin)return;
  focusTarget={kind,key};focusOrigin=origin;syncVisualFocus();
- if(origin==='tap'&&window.matchMedia('(max-width:1100px)').matches)showCompactDetails();
+ showElementPopover();
 }
-function showCompactDetails(){
- let dialog=$('compact-details');
- if(!dialog){
-  dialog=document.createElement('dialog');dialog.id='compact-details';
-  dialog.setAttribute('aria-label','星境元素详情');
-  const close=document.createElement('button');close.type='button';close.textContent='×';close.setAttribute('aria-label','关闭详情');close.onclick=()=>dialog.close();
-  dialog.append(close,document.createElement('div'));document.body.append(dialog);
-  dialog.addEventListener('close',clearElementFocus);
+function focusAnchorRect(){
+ if(!focusTarget)return null;
+ if(focusTarget.kind==='symbol')return [...document.querySelectorAll('.symbol')].find(b=>b.dataset.symbolId===focusTarget.key)?.getBoundingClientRect()||null;
+ const hit=planetHits.find(p=>p.name===focusTarget.key);
+ return hit?{left:hit.x-12,right:hit.x+12,top:hit.y-scrollY-12,bottom:hit.y-scrollY+12}:null;
+}
+function positionElementPopover(){
+ const tip=$('element-popover'),anchor=focusAnchorRect();if(!tip||tip.hidden||!anchor)return;
+ const pad=12,gap=12,w=tip.offsetWidth,h=tip.offsetHeight,vw=document.documentElement.clientWidth,vh=window.innerHeight;
+ let left,top;
+ if(anchor.right+gap+w<=vw-pad){left=anchor.right+gap;top=(anchor.top+anchor.bottom-h)/2}
+ else if(anchor.left-gap-w>=pad){left=anchor.left-gap-w;top=(anchor.top+anchor.bottom-h)/2}
+ else{left=(anchor.left+anchor.right-w)/2;top=anchor.top-gap-h>=pad?anchor.top-gap-h:anchor.bottom+gap}
+ tip.style.left=Math.max(pad,Math.min(vw-w-pad,left))+'px';
+ tip.style.top=Math.max(pad,Math.min(vh-h-pad,top))+'px';
+}
+function showElementPopover(){
+ let tip=$('element-popover');
+ if(!tip){
+  tip=document.createElement('div');tip.id='element-popover';
+  const close=document.createElement('button');close.type='button';close.className='popover-close';close.textContent='×';close.setAttribute('aria-label','关闭元素解读');close.onclick=clearElementFocus;
+  tip.append(close,document.createElement('div'));document.body.append(tip);
  }
- const detail=document.querySelector('.detail').cloneNode(true);
- detail.removeAttribute('id');detail.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));
- dialog.lastElementChild.replaceChildren(detail);
- if(!dialog.open)dialog.showModal();
+ const touch=focusOrigin==='tap';tip.dataset.interaction=touch?'tap':'hover';tip.setAttribute('role',touch?'dialog':'tooltip');tip.setAttribute('aria-label',$('detailname').textContent+' · 元素解读');
+ const detail=document.querySelector('.detail').cloneNode(true);detail.removeAttribute('id');detail.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
+ const motif=YuanjingIcons.motifs?.[$('detailname').textContent];
+ if(motif){const note=document.createElement('p');note.className='motif-note';note.textContent='造型寓意 · '+motif;detail.append(note)}
+ if(focusTarget?.kind==='symbol'){const note=document.createElement('small');note.className='popover-notice';note.textContent='传统文化符号的艺术解读，仅供娱乐与自我探索。';detail.append(note)}
+ tip.lastElementChild.replaceChildren(detail);tip.firstElementChild.hidden=!touch;tip.hidden=false;
+ document.querySelectorAll('.symbol').forEach(b=>{if(b.dataset.symbolId===focusTarget?.key)b.setAttribute('aria-describedby',tip.id);else b.removeAttribute('aria-describedby')});
+ positionElementPopover();requestAnimationFrame(positionElementPopover);
 }
-function clearElementFocus(){focusTarget=null;focusOrigin=null;syncVisualFocus()}
+function clearElementFocus(){
+ focusTarget=null;focusOrigin=null;syncVisualFocus();
+ const tip=$('element-popover');if(tip)tip.hidden=true;
+ document.querySelectorAll('.symbol[aria-describedby]').forEach(b=>b.removeAttribute('aria-describedby'));
+}
+window.addEventListener('scroll',()=>{if(focusTarget)clearElementFocus()},{passive:true});
+window.addEventListener('resize',clearElementFocus);
 function bindSymbolFocus(button,entry){
  button.dataset.symbolId=entry.id;
  const inspect=origin=>{selectSymbol(entry.name,entry,true);focusElement('symbol',entry.id,origin)};
@@ -34,7 +58,7 @@ function bindSymbolFocus(button,entry){
  button.addEventListener('blur',()=>{if(focusTarget?.key===entry.id&&focusOrigin==='keyboard')clearElementFocus()});
  button.onclick=()=>inspect(lastInput==='touch'?'tap':lastInput==='keyboard'?'keyboard':'pointer');
 }
-document.addEventListener('pointerdown',event=>{lastInput=event.pointerType==='touch'?'touch':'pointer';if(!event.target.closest?.('.symbol'))clearElementFocus()},{capture:true});
+document.addEventListener('pointerdown',event=>{lastInput=event.pointerType==='touch'?'touch':'pointer';if(!event.target.closest?.('.symbol,#element-popover'))clearElementFocus()},{capture:true});
 document.addEventListener('keydown',event=>{lastInput='keyboard';if(event.key==='Escape')clearElementFocus()});
 
 function renderSymbols(){
@@ -94,7 +118,7 @@ world.addEventListener('pointermove',event=>{
  if(event.pointerType==='touch'||event.buttons||world.classList.contains('dragging'))return;
  if(event.target.closest('.symbol'))return;
  const hit=findPlanetAt(event.clientX,event.clientY);
- if(hit){if(focusTarget?.kind!=='planet'||focusTarget.key!==hit.name||focusOrigin!=='pointer'){focusElement('planet',hit.name,'pointer');showPlanetDetails(hit)}}
+ if(hit){if(focusTarget?.kind!=='planet'||focusTarget.key!==hit.name||focusOrigin!=='pointer'){showPlanetDetails(hit);focusElement('planet',hit.name,'pointer')}}
  else if(focusTarget?.kind==='planet'&&focusOrigin==='pointer')clearElementFocus();
 });
 world.addEventListener('pointerleave',()=>{if(focusOrigin==='pointer')clearElementFocus()});
