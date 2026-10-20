@@ -178,3 +178,10 @@
 
 /* Keep the scene still while the neighbouring explanation changes height. */
 @media(min-width:701px){main>.world{align-self:start}}
+
+/* End the compact page at the birth celestial scene. */
+.worldbottom[hidden]{display:none}
+@media(max-width:1100px){main>.readout{display:none}main{margin-bottom:0}.world{margin-bottom:0}}
+#compact-details{width:min(420px,90vw);max-height:80vh;overflow:auto;padding:20px}
+#compact-details>button{float:right;font-size:25px;position:relative;z-index:1}
+#compact-details .detail{margin:0;border:0;background:none;padding:12px 4px}
