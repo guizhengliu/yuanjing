@@ -162,3 +162,19 @@
 .detailicon>.symbol-glyph{width:38px;height:38px}
 .detailicon[data-family="omen"]{color:#c6a9e6}
 .omen-list-icon{display:inline-flex;width:23px;height:23px;vertical-align:middle;margin-right:8px;color:inherit;font-style:normal}
+
+/* Focus only changes the glyph, never the camera-projected button transform. */
+.world.is-focusing .symbol{animation-play-state:paused}
+.world.is-focusing .symbol:not(.is-focused){opacity:.18!important;filter:saturate(.4);transition:opacity .18s}
+.world.is-focusing .symbol.is-focused{opacity:1!important;z-index:40!important;filter:none}
+.symbol.is-focused>i{animation:element-focus-glow 1.8s ease-in-out infinite}
+.symbol.is-focused.god>i{color:#d5f3df}
+.symbol.is-focused.omen>i{color:#f2d8ff;border-color:#e2bfff;box-shadow:0 0 20px #d2a4f74a}
+.symbol.is-focused>span{color:#f1e4c3}
+.world.is-focusing .cosmos3d canvas{opacity:.4;transition:opacity .2s}
+#detailmeta a{color:#bdbb93;font-size:9px;text-decoration:underline;text-underline-offset:3px}
+@keyframes element-focus-glow{0%,100%{filter:brightness(1.12) drop-shadow(0 0 5px currentColor)}50%{filter:brightness(1.5) drop-shadow(0 0 13px currentColor)}}
+@media(prefers-reduced-motion:reduce){.symbol.is-focused>i{animation:none;filter:brightness(1.2) drop-shadow(0 0 8px currentColor)}}
+
+/* Keep the scene still while the neighbouring explanation changes height. */
+@media(min-width:701px){main>.world{align-self:start}}

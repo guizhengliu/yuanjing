@@ -7,7 +7,7 @@ function init(){
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(43,1,.1,100),universe=new THREE.Group();scene.add(universe);
  const viewport=document.createElement('div');viewport.className='cosmos3d';viewport.setAttribute('aria-label','二维灵体周围的三维浑天星环，可拖拽旋转');renderer.domElement.setAttribute('aria-hidden','true');viewport.append(renderer.domElement);host.prepend(viewport);
  renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0x000000,0);host.classList.add('has-3d');
- const satelliteGroup=new THREE.Group();universe.add(satelliteGroup);let satellites=[],rings=[],yaw=0,pitch=.10,distance=12,zoom3d=1,orbitTime=0,orbitMotion=true,hovered=false,last=0,dragged=false,pointerDown=new Map();
+ const satelliteGroup=new THREE.Group();universe.add(satelliteGroup);let satellites=[],rings=[],yaw=0,pitch=.10,distance=12,zoom3d=1,orbitTime=0,orbitMotion=true,last=0,dragged=false,pointerDown=new Map();
  const ringDefs=[
   {kind:'stem',radius:2.15,orientation:new THREE.Euler(.95,.25,.20),speed:1,color:0xa9c29c},
   {kind:'hidden',radius:3.20,orientation:new THREE.Euler(-.65,.85,-.55),speed:-.72,color:0x75998c},
@@ -51,15 +51,11 @@ function init(){
  host.addEventListener('keydown',e=>{if(e.target!==viewport)return;const moves={ArrowLeft:[-.1,0],ArrowRight:[.1,0],ArrowUp:[0,-.1],ArrowDown:[0,.1]};if(moves[e.key]){e.preventDefault();yaw+=moves[e.key][0];pitch=Math.max(-1.05,Math.min(1.05,pitch+moves[e.key][1]));}if(e.key==='Home')reset()});viewport.tabIndex=0;viewport.setAttribute('role','application');viewport.setAttribute('aria-label','浑天星环：自动环绕，拖拽或方向键旋转星环，人形固定，滚轮或双指缩放，Home 恢复正面');
  function resizeScene(){const width=host.clientWidth,height=570;renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();distance=5.5/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*Math.min(1,camera.aspect));}
  new ResizeObserver(resizeScene).observe(host);resizeScene();
- function frame(t){const dt=Math.min((t-last)/1000,.05);last=t;if(orbitMotion&&!hovered)orbitTime+=dt*.12;
+ function frame(t){const dt=Math.min((t-last)/1000,.05);last=t;if(orbitMotion&&!focusTarget)orbitTime+=dt*.12;
   camera.position.set(Math.sin(yaw)*Math.cos(pitch)*distance/zoom3d,Math.sin(pitch)*distance/zoom3d,Math.cos(yaw)*Math.cos(pitch)*distance/zoom3d);camera.lookAt(0,0,0);camera.updateMatrixWorld();universe.updateMatrixWorld();
   satellites.forEach(s=>{const local=coords(s.def,s.angle+orbitTime*s.def.speed);const worldPosition=local.applyMatrix4(universe.matrixWorld);const view=worldPosition.clone().applyMatrix4(camera.matrixWorldInverse);const p=worldPosition.clone().project(camera);const depthScale=Math.max(.68,Math.min(1.25,distance/(-view.z)*zoom3d));s.element.style.left=(p.x*.5+.5)*host.clientWidth+'px';s.element.style.top=(-p.y*.5+.5)*570+'px';s.element.style.transform=`scale(${depthScale})`;s.element.style.zIndex=view.z>-distance/zoom3d?20:4;s.element.style.opacity=view.z>-distance/zoom3d?'1':'.55';s.element.style.visibility=p.z>1||p.z< -1?'hidden':'visible';});
   renderer.render(scene,camera);requestAnimationFrame(frame);
  }
- host.addEventListener('pointerover',e=>{if(e.target.closest('.symbol'))hovered=true});
- host.addEventListener('pointerout',e=>{if(e.target.closest('.symbol')&&!e.relatedTarget?.closest?.('.symbol'))hovered=false});
- host.addEventListener('focusin',e=>{if(e.target.closest('.symbol'))hovered=true});
- host.addEventListener('focusout',e=>{if(e.target.closest('.symbol'))hovered=false});
  requestAnimationFrame(frame);
  renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();host.classList.remove('has-3d');renderSymbols=flatRender;flatRender()});
 }
