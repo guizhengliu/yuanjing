@@ -12,8 +12,10 @@ function init(){
   {kind:'stem',radius:2.15,orientation:new THREE.Euler(.28,0,0),speed:1,color:0xa9c29c},
   {kind:'hidden',radius:3.20,orientation:new THREE.Euler(.32,0,0),speed:-.72,color:0x75998c},
   {kind:'omen',radius:4.25,orientation:new THREE.Euler(.36,0,0),speed:.5,color:0xa591c0},
-  {kind:'dayun',radius:6.1,orientation:new THREE.Euler(.40,0,0),speed:.30,color:0xd9b77b},
-  {kind:'annual',radius:7.4,orientation:new THREE.Euler(.44,0,0),speed:-.24,color:0x8dbedc}
+  {kind:'dayun',family:'god',radius:6.1,orientation:new THREE.Euler(.40,0,0),speed:.30,color:0xd9b77b},
+  {kind:'dayun',family:'omen',radius:7.3,orientation:new THREE.Euler(.44,0,0),speed:.27,color:0xc9a268},
+  {kind:'annual',family:'god',radius:8.5,orientation:new THREE.Euler(.48,0,0),speed:-.24,color:0x8dbedc},
+  {kind:'annual',family:'omen',radius:9.7,orientation:new THREE.Euler(.52,0,0),speed:-.21,color:0x7eabc9}
  ];
  function coords(def,angle){return new THREE.Vector3(Math.cos(angle)*def.radius,Math.sin(angle)*def.radius,0).applyEuler(def.orientation);}
  function rebuild(){
@@ -21,9 +23,9 @@ function init(){
   document.querySelectorAll('.symbol-orbit').forEach(n=>n.remove());satellites=[];
   ringDefs.forEach(def=>{
    const source=def.kind==='stem'?stemEntries:def.kind==='hidden'?hiddenEntries:def.kind==='omen'?omenEntries:periodState[def.kind];
-   const entries=source.filter(e=>{const omen=e.family==='omen'||e.kind==='omen';return mode==='all'||(mode==='omens'?omen:!omen)});
+   const entries=source.filter(e=>{if(def.family&&e.family!==def.family)return false;const omen=e.family==='omen'||e.kind==='omen';return mode==='all'||(mode==='omens'?omen:!omen)});
    if(!entries.length)return;
-   const elements=[...document.querySelectorAll('.symbol.'+def.kind)];
+   const elements=[...document.querySelectorAll('.symbol.'+def.kind+(def.family?'.'+def.family:''))];
    // One unbranched track per category, with evenly spaced angular slots.
    const pts=[];
    for(let i=0;i<=160;i++)pts.push(coords(def,i/160*Math.PI*2));
@@ -50,7 +52,7 @@ function init(){
  host.onpointercancel=e=>{pointerDown.delete(e.pointerId);host.classList.remove('dragging')};
  host.onwheel=e=>{if(!inStarRings(e))return;e.preventDefault();zoom3d=Math.max(.65,Math.min(1.35,zoom3d-e.deltaY*.001))};
  host.addEventListener('keydown',e=>{if(e.target!==viewport)return;const moves={ArrowLeft:[-.1,0],ArrowRight:[.1,0],ArrowUp:[0,-.1],ArrowDown:[0,.1]};if(moves[e.key]){e.preventDefault();yaw+=moves[e.key][0];pitch=Math.max(-1.05,Math.min(1.05,pitch+moves[e.key][1]));}if(e.key==='Home')reset()});viewport.tabIndex=0;viewport.setAttribute('role','application');viewport.setAttribute('aria-label','浑天星环：自动环绕，拖拽或方向键旋转星环，人形固定，滚轮或双指缩放，Home 恢复正面');
- function resizeScene(){const width=host.clientWidth,height=720;renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();distance=8.6/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*Math.min(1,camera.aspect));}
+ function resizeScene(){const width=host.clientWidth,height=720;renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();distance=10.8/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*Math.min(1,camera.aspect));}
  new ResizeObserver(resizeScene).observe(host);resizeScene();
  function frame(t){const dt=Math.min((t-last)/1000,.05);last=t;if(orbitMotion&&!focusTarget)orbitTime+=dt*.12;
   camera.position.set(Math.sin(yaw)*Math.cos(pitch)*distance/zoom3d,Math.sin(pitch)*distance/zoom3d,Math.cos(yaw)*Math.cos(pitch)*distance/zoom3d);camera.lookAt(0,0,0);camera.updateMatrixWorld();universe.updateMatrixWorld();

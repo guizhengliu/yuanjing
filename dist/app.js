@@ -64,11 +64,11 @@ document.addEventListener('keydown',event=>{lastInput='keyboard';if(event.key===
 function renderSymbols(){
  clearElementFocus();
  const box=$('symbols');box.innerHTML='';const w=document.querySelector('.world').clientWidth;
- const rings=[{kind:'stem',entries:stemEntries,ratio:.16,ry:105},{kind:'hidden',entries:hiddenEntries,ratio:.235,ry:160},{kind:'omen',entries:omenEntries,ratio:.315,ry:220},{kind:'dayun',entries:periodState.dayun,ratio:.40,ry:285},{kind:'annual',entries:periodState.annual,ratio:.47,ry:330}];
+ const rings=[{kind:'stem',entries:stemEntries,ratio:.105,ry:75},{kind:'hidden',entries:hiddenEntries,ratio:.16,ry:115},{kind:'omen',entries:omenEntries,ratio:.22,ry:160},{kind:'dayun',family:'god',entries:periodState.dayun,ratio:.30,ry:215},{kind:'dayun',family:'omen',entries:periodState.dayun,ratio:.355,ry:255},{kind:'annual',family:'god',entries:periodState.annual,ratio:.41,ry:295},{kind:'annual',family:'omen',entries:periodState.annual,ratio:.47,ry:335}];
  rings.forEach(ring=>{
-  const entries=ring.entries.filter(e=>{const omen=e.family==='omen'||e.kind==='omen';return mode==='all'||(mode==='omens'?omen:!omen)});
+  const entries=ring.entries.filter(e=>{if(ring.family&&e.family!==ring.family)return false;const omen=e.family==='omen'||e.kind==='omen';return mode==='all'||(mode==='omens'?omen:!omen)});
   if(!entries.length)return;
-  const rx=w*ring.ratio,orbit=document.createElement('div');orbit.className='symbol-orbit orbit-'+ring.kind;
+  const rx=w*ring.ratio,orbit=document.createElement('div');orbit.className='symbol-orbit orbit-'+ring.kind+(ring.family?'-'+ring.family:'');
   orbit.style.cssText=`left:${w/2-rx}px;top:${360-ring.ry}px;width:${rx*2}px;height:${ring.ry*2}px`;box.append(orbit);
   entries.forEach((e,i)=>{
    const omen=e.family==='omen'||e.kind==='omen',period=ring.kind==='dayun'||ring.kind==='annual';
@@ -76,7 +76,7 @@ function renderSymbols(){
    b.className='symbol '+(omen?'omen ':'god ')+ring.kind+(selectedKey===e.id?' selected':'');
    b.style.cssText=`left:${w/2+Math.cos(a)*rx}px;top:${360+Math.sin(a)*ring.ry}px;animation-delay:${-i*.65}s`;
    b.innerHTML=`<i>${omen?getOmenIcon(e.name):YuanjingIcons.svg(e.name,'god')}</i><span>${e.name}</span><small>${period?(ring.kind==='dayun'?'大运':'流年')+' · '+(omen?'神煞':e.origin.includes('藏干')?e.gan+'藏干':'透干'):e.pillar+' · '+(ring.kind==='stem'?'透干':ring.kind==='hidden'?e.gan+'藏干':'神煞')}</small>`;
-   b.setAttribute('aria-label',e.name+'，'+e.origin);bindSymbolFocus(b,e);box.append(b);
+   b.dataset.track=ring.kind+(ring.family?'-'+ring.family:'');b.setAttribute('aria-label',e.name+'，'+e.origin);bindSymbolFocus(b,e);box.append(b);
   });
  });
  if(mode==='omens'&&!box.querySelector('.symbol')){const note=document.createElement('div');note.className='omen-empty';note.textContent='未命中当前规则集的神煞';box.append(note)}
