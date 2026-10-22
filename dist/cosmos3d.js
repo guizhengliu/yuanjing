@@ -9,11 +9,11 @@ function init(){
  renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0x000000,0);host.classList.add('has-3d');
  const satelliteGroup=new THREE.Group();universe.add(satelliteGroup);let satellites=[],rings=[],yaw=0,pitch=.10,distance=12,zoom3d=1,orbitTime=0,orbitMotion=true,last=0,dragged=false,pointerDown=new Map();
  const ringDefs=[
-  {kind:'stem',radius:2.15,orientation:new THREE.Euler(.95,.25,.20),speed:1,color:0xa9c29c},
-  {kind:'hidden',radius:3.20,orientation:new THREE.Euler(-.65,.85,-.55),speed:-.72,color:0x75998c},
-  {kind:'omen',radius:4.25,orientation:new THREE.Euler(.45,-.85,.65),speed:.5,color:0xa591c0},
-  {kind:'dayun',radius:6.1,orientation:new THREE.Euler(.65,.3,-.4),speed:.30,color:0xd9b77b},
-  {kind:'annual',radius:7.4,orientation:new THREE.Euler(-.5,-.5,.35),speed:-.24,color:0x8dbedc}
+  {kind:'stem',radius:2.15,orientation:new THREE.Euler(.28,0,0),speed:1,color:0xa9c29c},
+  {kind:'hidden',radius:3.20,orientation:new THREE.Euler(.32,0,0),speed:-.72,color:0x75998c},
+  {kind:'omen',radius:4.25,orientation:new THREE.Euler(.36,0,0),speed:.5,color:0xa591c0},
+  {kind:'dayun',radius:6.1,orientation:new THREE.Euler(.40,0,0),speed:.30,color:0xd9b77b},
+  {kind:'annual',radius:7.4,orientation:new THREE.Euler(.44,0,0),speed:-.24,color:0x8dbedc}
  ];
  function coords(def,angle){return new THREE.Vector3(Math.cos(angle)*def.radius,Math.sin(angle)*def.radius,0).applyEuler(def.orientation);}
  function rebuild(){
@@ -24,15 +24,12 @@ function init(){
    const entries=source.filter(e=>{const omen=e.family==='omen'||e.kind==='omen';return mode==='all'||(mode==='omens'?omen:!omen)});
    if(!entries.length)return;
    const elements=[...document.querySelectorAll('.symbol.'+def.kind)];
-   // Two noncoplanar omen tracks, balanced without merging or dropping any instance.
-   const lanes=def.kind==='omen'?2:1;
-   for(let lane=0;lane<lanes;lane++){
-    const laneDef=def.kind==='omen'?{...def,radius:lane===0?4.25:4.60,orientation:lane===0?def.orientation:new THREE.Euler(-.85,-.30,-.45),speed:lane===0?.50:-.43,color:lane===0?def.color:0xb49dcb}:{...def};const pts=[];
-    for(let i=0;i<=160;i++)pts.push(coords(laneDef,i/160*Math.PI*2));
-    const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:laneDef.color,transparent:true,opacity:def.kind==='stem'?.24:.14}));satelliteGroup.add(line);rings.push(line);
-    const laneEntries=entries.map((entry,index)=>({entry,index})).filter((_,index)=>index%lanes===lane);
-    laneEntries.forEach(({entry,index},i)=>{const element=elements[index];if(element)satellites.push({element,def:laneDef,angle:i/laneEntries.length*Math.PI*2-Math.PI/2+lane*.19+(def.kind==='hidden'?.15:0)});});
-   }
+   // One unbranched track per category, with evenly spaced angular slots.
+   const pts=[];
+   for(let i=0;i<=160;i++)pts.push(coords(def,i/160*Math.PI*2));
+   const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:def.color,transparent:true,opacity:def.kind==='stem'?.24:.14}));
+   satelliteGroup.add(line);rings.push(line);
+   entries.forEach((entry,i)=>{const element=elements[i];if(element)satellites.push({element,def,angle:i/entries.length*Math.PI*2-Math.PI/2});});
 
   });
  }
