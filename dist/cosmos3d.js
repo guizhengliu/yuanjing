@@ -38,16 +38,17 @@ function init(){
  function reset(){yaw=0;pitch=.10;zoom3d=1;orbitTime=0;orbitMotion=true}
  const resetSolar=$('reset').onclick;$('reset').onclick=()=>{resetSolar();reset()};
  const oldPointerUp=host.onpointerup;
- host.onpointerdown=e=>{if(e.target.closest('button'))return;pointerDown.set(e.pointerId,{x:e.clientX,y:e.clientY});dragged=false;host.setPointerCapture(e.pointerId);host.classList.add('dragging')};
+ const inStarRings=e=>{const r=viewport.getBoundingClientRect();return e.clientY>=r.top&&e.clientY<r.bottom};
+ host.onpointerdown=e=>{if(e.target.closest('button')||!inStarRings(e))return;pointerDown.set(e.pointerId,{x:e.clientX,y:e.clientY});dragged=false;host.setPointerCapture(e.pointerId);host.classList.add('dragging')};
  host.onpointermove=e=>{
   const prev=pointerDown.get(e.pointerId);if(!prev)return;
   if(pointerDown.size===1){yaw+=(e.clientX-prev.x)*.007;pitch=Math.max(-1.05,Math.min(1.05,pitch+(e.clientY-prev.y)*.006));}
   else{const other=[...pointerDown.entries()].find(([id])=>id!==e.pointerId)?.[1];if(other){const before=Math.hypot(prev.x-other.x,prev.y-other.y),after=Math.hypot(e.clientX-other.x,e.clientY-other.y);if(before>0)zoom3d=Math.max(.65,Math.min(1.35,zoom3d*after/before));}}
   if(Math.abs(e.clientX-prev.x)+Math.abs(e.clientY-prev.y)>2)dragged=true;pointerDown.set(e.pointerId,{x:e.clientX,y:e.clientY});
  };
- host.onpointerup=e=>{pointerDown.delete(e.pointerId);host.classList.remove('dragging');if(!dragged&&!e.target.closest('button'))oldPointerUp?.(e)};
+ host.onpointerup=e=>{const tracked=pointerDown.has(e.pointerId);pointerDown.delete(e.pointerId);host.classList.remove('dragging');if((!tracked||!dragged)&&!e.target.closest('button'))oldPointerUp?.(e)};
  host.onpointercancel=e=>{pointerDown.delete(e.pointerId);host.classList.remove('dragging')};
- host.onwheel=e=>{e.preventDefault();zoom3d=Math.max(.65,Math.min(1.35,zoom3d-e.deltaY*.001))};
+ host.onwheel=e=>{if(!inStarRings(e))return;e.preventDefault();zoom3d=Math.max(.65,Math.min(1.35,zoom3d-e.deltaY*.001))};
  host.addEventListener('keydown',e=>{if(e.target!==viewport)return;const moves={ArrowLeft:[-.1,0],ArrowRight:[.1,0],ArrowUp:[0,-.1],ArrowDown:[0,.1]};if(moves[e.key]){e.preventDefault();yaw+=moves[e.key][0];pitch=Math.max(-1.05,Math.min(1.05,pitch+moves[e.key][1]));}if(e.key==='Home')reset()});viewport.tabIndex=0;viewport.setAttribute('role','application');viewport.setAttribute('aria-label','浑天星环：自动环绕，拖拽或方向键旋转星环，人形固定，滚轮或双指缩放，Home 恢复正面');
  function resizeScene(){const width=host.clientWidth,height=570;renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();distance=5.5/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*Math.min(1,camera.aspect));}
  new ResizeObserver(resizeScene).observe(host);resizeScene();

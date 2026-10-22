@@ -129,3 +129,7 @@
 .popover-close{float:right;width:32px;height:32px;position:relative;z-index:1;border:1px solid #b9c99b44;border-radius:4px;font-size:23px;line-height:1;color:#d9dfd6}
 .popover-close[hidden]{display:none}
 .popover-notice{display:block;font-size:9px;line-height:1.7;color:#8b9b8f;margin-top:12px}
+
+/* The lower celestial scene scrolls with the page; only star rings capture gestures. */
+.world.has-3d{touch-action:pan-y}
+.cosmos3d,.world .symbol{touch-action:none}
