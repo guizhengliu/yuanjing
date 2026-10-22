@@ -179,3 +179,11 @@ function syncPlayButton(){
  button.setAttribute('aria-label',playing?'暂停行星轨迹':'播放行星轨迹');
  button.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">'+(playing?'<path d="M8 5v14M16 5v14"/>':'<path d="M8 5l11 7-11 7Z"/>')+'</svg>'+(playing?'暂停':'播放');
 }
+
+function syncSpiritFigure(){
+ const male=$('gender').value==='male',figure=document.querySelector('.selected-spirit');
+ figure.src=male?'assets/meditation-male.png':'assets/meditation-selected.png';
+ figure.alt=male?'香槟金半透明男性灵体，盘坐静修':'香槟金半透明灵体，盘坐静修';
+}
+$('gender').addEventListener('change',syncSpiritFigure);
+syncSpiritFigure();
