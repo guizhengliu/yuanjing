@@ -64,7 +64,7 @@ document.addEventListener('keydown',event=>{lastInput='keyboard';if(event.key===
 function renderSymbols(){
  clearElementFocus();
  const box=$('symbols');box.innerHTML='';const w=document.querySelector('.world').clientWidth;
- const rings=[{kind:'stem',entries:stemEntries,ratio:.105,ry:75},{kind:'hidden',entries:hiddenEntries,ratio:.16,ry:115},{kind:'omen',entries:omenEntries,ratio:.22,ry:160},{kind:'dayun',family:'god',entries:periodState.dayun,ratio:.30,ry:215},{kind:'dayun',family:'omen',entries:periodState.dayun,ratio:.355,ry:255},{kind:'annual',family:'god',entries:periodState.annual,ratio:.41,ry:295},{kind:'annual',family:'omen',entries:periodState.annual,ratio:.47,ry:335}];
+ const rings=[{kind:'stem',entries:stemEntries,ratio:.087,ry:62},{kind:'hidden',entries:hiddenEntries,ratio:.162,ry:116},{kind:'omen',entries:omenEntries,ratio:.242,ry:173},{kind:'dayun',family:'god',entries:periodState.dayun,ratio:.322,ry:230},{kind:'dayun',family:'omen',entries:periodState.dayun,ratio:.373,ry:266},{kind:'annual',family:'god',entries:periodState.annual,ratio:.422,ry:300},{kind:'annual',family:'omen',entries:periodState.annual,ratio:.47,ry:335}];
  rings.forEach(ring=>{
   const entries=ring.entries.filter(e=>{if(ring.family&&e.family!==ring.family)return false;const omen=e.family==='omen'||e.kind==='omen';return mode==='all'||(mode==='omens'?omen:!omen)});
   if(!entries.length)return;
