@@ -133,3 +133,16 @@
 /* The lower celestial scene scrolls with the page; only star rings capture gestures. */
 .world.has-3d{touch-action:pan-y}
 .cosmos3d,.world .symbol{touch-action:none}
+
+/* Wider-spaced current-period layers beyond the natal rings. */
+.world{min-height:950px}.cosmos3d{height:720px}
+.world .figure,.has-3d .figure{top:360px;width:min(28%,160px);height:auto;transform:translate(-50%,-50%)}
+.period-legend{position:absolute;top:29px;left:0;right:0;display:flex;justify-content:center;gap:18px;font-size:9px;pointer-events:none;z-index:21}
+.period-legend span:first-child{color:#dfbc80}.period-legend span:last-child{color:#9bcce8}
+.period-legend span::before{content:'';display:inline-block;width:6px;height:6px;border:1px solid currentColor;border-radius:50%;margin-right:5px}
+.period-status{font-size:10px;line-height:1.8;color:#a6b5a7;margin:0 0 16px}
+.symbol.dayun,.symbol.dayun.omen{color:#dfbc80}.symbol.annual,.symbol.annual.omen{color:#9bcce8}
+.symbol.dayun i,.symbol.annual i{width:29px;height:29px}
+.symbol.dayun i::before,.symbol.annual i::before{content:'';position:absolute;inset:-4px;border:1px solid currentColor;opacity:.35;border-radius:6px}
+.symbol.annual i::before{border-radius:50%;border-style:dashed}
+@media(max-width:700px){.world{min-height:940px}.world .figure,.has-3d .figure{top:360px;width:min(28%,140px)}.symbol.dayun,.symbol.annual{width:46px;margin-left:-23px}.symbol.dayun i,.symbol.annual i{width:24px;height:24px}.symbol.dayun span,.symbol.annual span{font-size:8px}}

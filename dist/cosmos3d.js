@@ -11,15 +11,18 @@ function init(){
  const ringDefs=[
   {kind:'stem',radius:2.15,orientation:new THREE.Euler(.95,.25,.20),speed:1,color:0xa9c29c},
   {kind:'hidden',radius:3.20,orientation:new THREE.Euler(-.65,.85,-.55),speed:-.72,color:0x75998c},
-  {kind:'omen',radius:4.25,orientation:new THREE.Euler(.45,-.85,.65),speed:.5,color:0xa591c0}
+  {kind:'omen',radius:4.25,orientation:new THREE.Euler(.45,-.85,.65),speed:.5,color:0xa591c0},
+  {kind:'dayun',radius:6.1,orientation:new THREE.Euler(.65,.3,-.4),speed:.30,color:0xd9b77b},
+  {kind:'annual',radius:7.4,orientation:new THREE.Euler(-.5,-.5,.35),speed:-.24,color:0x8dbedc}
  ];
  function coords(def,angle){return new THREE.Vector3(Math.cos(angle)*def.radius,Math.sin(angle)*def.radius,0).applyEuler(def.orientation);}
  function rebuild(){
   for(const r of rings){satelliteGroup.remove(r);r.geometry.dispose();r.material.dispose();}rings=[];
   document.querySelectorAll('.symbol-orbit').forEach(n=>n.remove());satellites=[];
   ringDefs.forEach(def=>{
-   const visible=def.kind==='omen'?mode!=='gods':mode!=='omens';if(!visible)return;
-   const entries=def.kind==='stem'?stemEntries:def.kind==='hidden'?hiddenEntries:omenEntries;
+   const source=def.kind==='stem'?stemEntries:def.kind==='hidden'?hiddenEntries:def.kind==='omen'?omenEntries:periodState[def.kind];
+   const entries=source.filter(e=>{const omen=e.family==='omen'||e.kind==='omen';return mode==='all'||(mode==='omens'?omen:!omen)});
+   if(!entries.length)return;
    const elements=[...document.querySelectorAll('.symbol.'+def.kind)];
    // Two noncoplanar omen tracks, balanced without merging or dropping any instance.
    const lanes=def.kind==='omen'?2:1;
@@ -50,11 +53,11 @@ function init(){
  host.onpointercancel=e=>{pointerDown.delete(e.pointerId);host.classList.remove('dragging')};
  host.onwheel=e=>{if(!inStarRings(e))return;e.preventDefault();zoom3d=Math.max(.65,Math.min(1.35,zoom3d-e.deltaY*.001))};
  host.addEventListener('keydown',e=>{if(e.target!==viewport)return;const moves={ArrowLeft:[-.1,0],ArrowRight:[.1,0],ArrowUp:[0,-.1],ArrowDown:[0,.1]};if(moves[e.key]){e.preventDefault();yaw+=moves[e.key][0];pitch=Math.max(-1.05,Math.min(1.05,pitch+moves[e.key][1]));}if(e.key==='Home')reset()});viewport.tabIndex=0;viewport.setAttribute('role','application');viewport.setAttribute('aria-label','浑天星环：自动环绕，拖拽或方向键旋转星环，人形固定，滚轮或双指缩放，Home 恢复正面');
- function resizeScene(){const width=host.clientWidth,height=570;renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();distance=5.5/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*Math.min(1,camera.aspect));}
+ function resizeScene(){const width=host.clientWidth,height=720;renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();distance=8.6/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*Math.min(1,camera.aspect));}
  new ResizeObserver(resizeScene).observe(host);resizeScene();
  function frame(t){const dt=Math.min((t-last)/1000,.05);last=t;if(orbitMotion&&!focusTarget)orbitTime+=dt*.12;
   camera.position.set(Math.sin(yaw)*Math.cos(pitch)*distance/zoom3d,Math.sin(pitch)*distance/zoom3d,Math.cos(yaw)*Math.cos(pitch)*distance/zoom3d);camera.lookAt(0,0,0);camera.updateMatrixWorld();universe.updateMatrixWorld();
-  satellites.forEach(s=>{const local=coords(s.def,s.angle+orbitTime*s.def.speed);const worldPosition=local.applyMatrix4(universe.matrixWorld);const view=worldPosition.clone().applyMatrix4(camera.matrixWorldInverse);const p=worldPosition.clone().project(camera);const depthScale=Math.max(.68,Math.min(1.25,distance/(-view.z)*zoom3d));s.element.style.left=(p.x*.5+.5)*host.clientWidth+'px';s.element.style.top=(-p.y*.5+.5)*570+'px';s.element.style.transform=`scale(${depthScale})`;s.element.style.zIndex=view.z>-distance/zoom3d?20:4;s.element.style.opacity=view.z>-distance/zoom3d?'1':'.55';s.element.style.visibility=p.z>1||p.z< -1?'hidden':'visible';});
+  satellites.forEach(s=>{const local=coords(s.def,s.angle+orbitTime*s.def.speed);const worldPosition=local.applyMatrix4(universe.matrixWorld);const view=worldPosition.clone().applyMatrix4(camera.matrixWorldInverse);const p=worldPosition.clone().project(camera);const depthScale=Math.max(.68,Math.min(1.25,distance/(-view.z)*zoom3d));s.element.style.left=(p.x*.5+.5)*host.clientWidth+'px';s.element.style.top=(-p.y*.5+.5)*720+'px';s.element.style.transform=`scale(${depthScale})`;s.element.style.zIndex=view.z>-distance/zoom3d?20:4;s.element.style.opacity=view.z>-distance/zoom3d?'1':'.55';s.element.style.visibility=p.z>1||p.z< -1?'hidden':'visible';});
   renderer.render(scene,camera);requestAnimationFrame(frame);
  }
  requestAnimationFrame(frame);
