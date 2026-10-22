@@ -9,13 +9,13 @@ function init(){
  renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0x000000,0);host.classList.add('has-3d');
  const satelliteGroup=new THREE.Group();universe.add(satelliteGroup);let satellites=[],rings=[],yaw=0,pitch=.10,distance=12,zoom3d=1,orbitTime=0,orbitMotion=true,last=0,dragged=false,pointerDown=new Map();
  const ringDefs=[
-  {kind:'stem',radius:1.8,orientation:new THREE.Euler(.28,0,0),speed:1,color:0xa9c29c},
-  {kind:'hidden',radius:3.35,orientation:new THREE.Euler(.32,0,0),speed:-.72,color:0x75998c},
-  {kind:'omen',radius:5.0,orientation:new THREE.Euler(.36,0,0),speed:.5,color:0xa591c0},
-  {kind:'dayun',family:'god',radius:6.65,orientation:new THREE.Euler(.40,0,0),speed:.30,color:0xd9b77b},
-  {kind:'dayun',family:'omen',radius:7.7,orientation:new THREE.Euler(.44,0,0),speed:.27,color:0xc9a268},
-  {kind:'annual',family:'god',radius:8.7,orientation:new THREE.Euler(.48,0,0),speed:-.24,color:0x8dbedc},
-  {kind:'annual',family:'omen',radius:9.7,orientation:new THREE.Euler(.52,0,0),speed:-.21,color:0x7eabc9}
+  {kind:'stem',radius:1.8,orientation:new THREE.Euler(.80,.15,.20),speed:1,color:0xa9c29c},
+  {kind:'hidden',radius:3.35,orientation:new THREE.Euler(-.65,.65,-.40),speed:-.72,color:0x75998c},
+  {kind:'omen',radius:5.0,orientation:new THREE.Euler(.45,-.75,.65),speed:.5,color:0xa591c0},
+  {kind:'dayun',family:'god',radius:6.65,orientation:new THREE.Euler(1.05,.35,-.55),speed:.30,color:0xd9b77b},
+  {kind:'dayun',family:'omen',radius:7.7,orientation:new THREE.Euler(-.85,-.30,.45),speed:.27,color:0xc9a268},
+  {kind:'annual',family:'god',radius:8.7,orientation:new THREE.Euler(.55,1.0,-.20),speed:-.24,color:0x8dbedc},
+  {kind:'annual',family:'omen',radius:9.7,orientation:new THREE.Euler(-.45,-.90,.85),speed:-.21,color:0x7eabc9}
  ];
  function coords(def,angle){return new THREE.Vector3(Math.cos(angle)*def.radius,Math.sin(angle)*def.radius,0).applyEuler(def.orientation);}
  function rebuild(){
